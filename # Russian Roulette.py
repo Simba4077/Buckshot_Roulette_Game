@@ -189,6 +189,7 @@ def main():
                                      print_player_lives()
                                      player_to_shoot = input("Now who do you want to shoot? (type your own name if you want to shoot yourself)")
                                      if(current_bullet == "live"):
+                                        name_lives[player_to_shoot] -= 1
                                         print("Bam, you hit!")
                                         print("Here are the current players and their lives now: ")
                                         print_player_lives()
