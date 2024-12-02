@@ -63,6 +63,7 @@ def init():
     for i in range(num_players):
         player_name = input(f"What is player {i}'s name?: ")
         name_lives[player_name] = 5
+    return num_players
 
 
 def opening_remark():
@@ -103,6 +104,7 @@ def ammo_setup():
     for i in range(num_bullet+1):
         bullet = random.choice(bullet_opt)
         bullet_order.append(bullet)
+    return num_bullet
 
 def item_setup():
     item_opt = ["Magnifying Glass","Saw","Handcuffs"]
@@ -124,10 +126,11 @@ def has_item(item):
 
         
 def clear_player():
-     for key,value in name_lives.items():
-          if value == 0:
-                del name_lives['key']
-                num_players-=1 #subtract the number of players 
+     for key,value in list(name_lives.items()):
+          if value <= 0:
+                del name_lives[key]
+                return True
+                 
                
      
 
@@ -135,7 +138,7 @@ def main():
     opening_remark() #some print statements, instructions   
     while True:
         try:
-            init()
+            num_players = init() 
             print("You entered these player names: ")
             print_player()
             confirm = input("Are these player names correct? Enter 'y/Y/yes/Yes' for yes or any other key for no: ")
@@ -145,29 +148,50 @@ def main():
             print("Uhum, that wasn't one of the options, let's try that again please")
     add_remark() #more print statement instructions
     for i in range(6): #5 rounds
+        empty = False
+        defeat = False
         print("Currently loading up the shells")
-        ammo_setup()
+        num_bullet = ammo_setup()
+        print(num_bullet)
         while num_players >= 2: #make sure there is more than 1 player left
             item_setup() #give 3 items per player
             print("Here are everyone's items: ")
             print_items()
+            count = 0
             while True:
-                 count = 0
-                 for key in name_lives:
+                 for key in list(name_lives):
                       current_bullet = bullet_order[count] #loads current_bullet
                       print(f"It's player {key}'s turn")
                       use_item = input("Would you like to use an item? y/n")
                       if use_item == 'n':
-                           
                            print("Here are the current players and their lives: ")
                            print_player_lives()
                            player_to_shoot = input("Now who do you want to shoot? (type your own name if you want to shoot yourself)")
                            if(current_bullet == "live"):
                                 print("Bam, you hit!")
+                                name_lives[player_to_shoot] -= 1
                                 print("Here are the current players and their lives now: ")
                                 print_player_lives()
+                                
                            else:
                                 print("Seems like it was a miss")
+            
+                           count+=1
+                           print(f"The current count is now: {count}")
+                           cleared = clear_player() # clear any players that have 0 lives left
+                           if cleared == True:
+                                num_players-=1
+                           print(f"The current number of players is: {num_players}")
+                        
+                           if num_players < 2:
+                        
+                                defeat = True
+                                break
+                           if(count >= num_bullet): #if the count becomes more than the num_bullets, break out of loop and round is over
+                                print("Seems that the racks are empty")
+                                empty = True
+                                break
+                 
                       if use_item == 'y':
                            print("Here are your current items: ")
                            print_items()
@@ -177,10 +201,7 @@ def main():
                                     if value == which_item:
                                         del dic_item[key][i]
                                     
-                                
-
-
-
+                            
                                 if(which_item == "Magnifying Glass"):
                                      peeked = magnifier(count)
                                      print("You've selected the Magnifying Glass!")
@@ -224,12 +245,32 @@ def main():
                                              print_player_lives()
                                       else:
                                              print("Seems like it was a miss")
-                 clear_player() # clear any players that have 0 lives left
-                 count+=1 #increment the count to move to the next bullet in the list
+                                
+                                count+=1
+                                print(f"The current count is now: {count}")
+                                cleared = clear_player() # clear any players that have 0 lives left
+                                if cleared == True:
+                                     num_players-=1
+                                print(f"The current number of players is: {num_players}")
+                                if num_players < 2:
+                                    defeat = True
+                                    break
                 
-                 if(count > num_bullet): #if the count becomes more than the num_bullets, break out of loop and round is over
-                    print("Seems that the racks are empty")
+                                if(count >= num_bullet): #if the count becomes more than the num_bullets, break out of loop and round is over
+                                    print("Seems that the racks are empty")
+                                    empty = True
+                                    break
+
+                      if empty == True or defeat == True:
+                        break
+                 if empty == True or defeat == True:
                     break
+            if defeat == True or empty == True:
+                break
+        if defeat == True:
+                break
+                      
+                      
     
 if __name__ == "__main__":
     main()
